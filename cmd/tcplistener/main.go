@@ -1,6 +1,7 @@
 package main
 
 import (
+	"boot-httpfromtcp/internal/request"
 	"errors"
 	"fmt"
 	"io"
@@ -27,10 +28,11 @@ func main() {
 
 		fmt.Printf("Connection established from: %s\n", conn.RemoteAddr())
 
-		linesChan := getLinesChannel(conn)
-		for line := range linesChan {
-			fmt.Println(line)
+		req, err := request.RequestFromReader(conn)
+		if err != nil {
+			fmt.Printf("Error reading: %s", err.Error())
 		}
+		fmt.Printf("Request line:\n- Method: %s\n- Target: %s\n- Version: %s\n", req.RequestLine.Method, req.RequestLine.RequestTarget, req.RequestLine.HttpVersion)
 		fmt.Printf("Connection to %s closed\n", conn.RemoteAddr())
 	}
 }
