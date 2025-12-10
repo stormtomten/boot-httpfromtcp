@@ -15,6 +15,22 @@ func NewHeaders() Headers {
 	return make(Headers)
 }
 
+func (h Headers) Set(key, value string) {
+	key = strings.ToLower(key)
+
+	v, exists := h[key]
+	if exists {
+		value = strings.Join([]string{v, value}, ", ")
+	}
+	h[key] = value
+}
+
+func (h Headers) Get(key string) (string, bool) {
+	key = strings.ToLower(key)
+	val, ok := h[key]
+	return val, ok
+}
+
 func (h Headers) Parse(data []byte) (n int, done bool, err error) {
 	idx := bytes.Index(data, []byte(crlf))
 	if idx == -1 {
@@ -43,16 +59,6 @@ func (h Headers) Parse(data []byte) (n int, done bool, err error) {
 
 	h.Set(name, value)
 	return idx + 2, false, nil
-}
-
-func (h Headers) Set(key, value string) {
-	key = strings.ToLower(key)
-
-	v, exists := h[key]
-	if exists {
-		value = strings.Join([]string{v, value}, ", ")
-	}
-	h[key] = value
 }
 
 var tokenChars = []byte{'!', '#', '$', '%', '&', '\'', '*', '+', '-', '.', '^', '_', '`', '|', '~'}

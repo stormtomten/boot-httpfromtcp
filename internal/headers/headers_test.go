@@ -85,7 +85,7 @@ func TestHeadersParse(t *testing.T) {
 	assert.Equal(t, 0, n)
 	assert.False(t, done)
 
-	// Test: Invalid char in field-name
+	// Test: Empty header
 	headers = NewHeaders()
 	data = []byte("Valid-name:\r\n\r\n")
 	n, done, err = headers.Parse(data)
