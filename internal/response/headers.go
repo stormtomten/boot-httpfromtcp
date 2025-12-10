@@ -3,7 +3,6 @@ package response
 import (
 	"boot-httpfromtcp/internal/headers"
 	"fmt"
-	"io"
 	"strconv"
 )
 
@@ -15,18 +14,22 @@ func GetDefaultHeaders(contentLen int) headers.Headers {
 	}
 }
 
-func WriteHeaders(w io.Writer, headers headers.Headers) error {
+func (w *Writer) WriteHeaders(headers headers.Headers) error {
+	if w.writeStatus != writeHeaders {
+		return fmt.Errorf("error: Wrong write order: %d", w.writeStatus)
+	}
 	for key, val := range headers {
 		header := fmt.Sprintf("%s:%s\r\n", key, val)
-		_, err := w.Write([]byte(header))
+		_, err := w.writer.Write([]byte(header))
 		if err != nil {
 			return err
 		}
 	}
-	_, err := w.Write([]byte("\r\n"))
+	_, err := w.writer.Write([]byte("\r\n"))
 	if err != nil {
 		return err
 	}
 
+	w.writeStatus = writeBody
 	return nil
 }

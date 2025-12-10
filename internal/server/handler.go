@@ -3,7 +3,6 @@ package server
 import (
 	"boot-httpfromtcp/internal/request"
 	"boot-httpfromtcp/internal/response"
-	"io"
 )
 
 type HandlerError struct {
@@ -11,12 +10,14 @@ type HandlerError struct {
 	Message    string
 }
 
-type Handler func(w io.Writer, req *request.Request) *HandlerError
+type Handler func(w *response.Writer, req *request.Request)
 
-func (he *HandlerError) Write(w io.Writer) {
+/*
+func (he *HandlerError) Write(w *response.Writer) {
 	response.WriteStatusLine(w, he.StatusCode)
 	msgbytes := []byte(he.Message)
 	headers := response.GetDefaultHeaders(len(msgbytes))
 	response.WriteHeaders(w, headers)
-	w.Write(msgbytes)
+	w.write.Write(msgbytes)
 }
+*/

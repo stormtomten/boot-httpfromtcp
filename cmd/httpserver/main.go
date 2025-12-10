@@ -2,8 +2,8 @@ package main
 
 import (
 	"boot-httpfromtcp/internal/request"
+	"boot-httpfromtcp/internal/response"
 	"boot-httpfromtcp/internal/server"
-	"io"
 	"log"
 	"os"
 	"os/signal"
@@ -26,20 +26,17 @@ func main() {
 	log.Println("Server gracefully stopped")
 }
 
-func handler(w io.Writer, req *request.Request) *server.HandlerError {
+func handler(w *response.Writer, req *request.Request) {
 	if req.RequestLine.RequestTarget == "/yourproblem" {
-		return &server.HandlerError{
-			StatusCode: 400,
-			Message:    "Your problem is not my problem\n",
-		}
+		handler400(w, req)
+		return
 	}
 
 	if req.RequestLine.RequestTarget == "/myproblem" {
-		return &server.HandlerError{
-			StatusCode: 500,
-			Message:    "Woopsie, my bad\n",
-		}
+		handler500(w, req)
+		return
 	}
-	w.Write([]byte("All good, frfr\n"))
-	return nil
+
+	handler200(w, req)
+	return
 }

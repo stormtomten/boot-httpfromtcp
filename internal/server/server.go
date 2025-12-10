@@ -3,7 +3,7 @@ package server
 import (
 	"boot-httpfromtcp/internal/request"
 	"boot-httpfromtcp/internal/response"
-	"bytes"
+	//"bytes"
 	"fmt"
 	"log"
 	"net"
@@ -52,36 +52,18 @@ func (s *Server) listen() {
 
 func (s *Server) handle(conn net.Conn) {
 	defer conn.Close()
+	w := response.NewWriter(conn)
 	req, err := request.RequestFromReader(conn)
 	if err != nil {
-		log.Printf("conn error: failed to  parse request: %s\n", err)
-		hErr := &HandlerError{
-			StatusCode: response.StatusBadRequest,
-			Message:    err.Error(),
-		}
-		hErr.Write(conn)
+		log.Printf("conn error: failed to  parse request: %s\n", err.Error())
+		w.WriteStatusLine(response.StatusBadRequest)
+		body := []byte(fmt.Sprintf("Error parsing request: %v", err))
+		w.WriteHeaders(response.GetDefaultHeaders(len(body)))
+		w.WriteBody(body)
 		return
 	}
 
-	buf := bytes.NewBuffer([]byte{})
-	hErr := s.handler(buf, req)
-	if hErr != nil {
-		hErr.Write(conn)
-		return
-	}
-	b := buf.Bytes()
-
-	headers := response.GetDefaultHeaders(len(b))
-	if err := response.WriteStatusLine(conn, 200); err != nil {
-		log.Printf("conn error: failed to write status line: %s\n", err)
-	}
-	if err := response.WriteHeaders(conn, headers); err != nil {
-		log.Printf("conn error: failed to write headers: %s\n", err)
-	}
-	_, err = conn.Write(b)
-	if err != nil {
-		log.Printf("conn error: failed to write body: %s\n", err)
-	}
+	s.handler(w, req)
 	return
 }
 
