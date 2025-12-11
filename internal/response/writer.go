@@ -1,6 +1,7 @@
 package response
 
 import (
+	"fmt"
 	"io"
 	"net"
 )
@@ -11,6 +12,7 @@ const (
 	writeStatus writerState = iota
 	writeHeaders
 	writeBody
+	writeTrailers
 	writeDone
 )
 
@@ -29,6 +31,9 @@ func NewWriter(conn net.Conn) *Writer {
 }
 
 func (w *Writer) WriteBody(p []byte) error {
+	if w.writeStatus != writeBody {
+		return fmt.Errorf("cannot write body in state %d", w.writeStatus)
+	}
 	if _, err := w.writer.Write(p); err != nil {
 		return err
 	}

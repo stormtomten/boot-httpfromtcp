@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 )
 
@@ -34,6 +35,16 @@ func handler(w *response.Writer, req *request.Request) {
 
 	if req.RequestLine.RequestTarget == "/myproblem" {
 		handler500(w, req)
+		return
+	}
+
+	if strings.HasPrefix(req.RequestLine.RequestTarget, "/httpbin/") {
+		handlerChunk(w, req)
+		return
+	}
+
+	if req.RequestLine.RequestTarget == "/video" {
+		handlerVideo(w, req)
 		return
 	}
 

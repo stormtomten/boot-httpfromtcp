@@ -14,12 +14,12 @@ func GetDefaultHeaders(contentLen int) headers.Headers {
 	}
 }
 
-func (w *Writer) WriteHeaders(headers headers.Headers) error {
+func (w *Writer) WriteHeaders(h headers.Headers) error {
 	if w.writeStatus != writeHeaders {
 		return fmt.Errorf("error: Wrong write order: %d", w.writeStatus)
 	}
-	for key, val := range headers {
-		header := fmt.Sprintf("%s:%s\r\n", key, val)
+	for key, val := range h {
+		header := fmt.Sprintf("%s: %s\r\n", key, val)
 		_, err := w.writer.Write([]byte(header))
 		if err != nil {
 			return err

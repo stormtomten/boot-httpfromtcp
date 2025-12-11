@@ -25,10 +25,23 @@ func (h Headers) Set(key, value string) {
 	h[key] = value
 }
 
-func (h Headers) Override(key, value string) {
-	delete(h, key)
-	key = strings.ToLower(key)
+func (h Headers) CaseSet(key, value string) {
+	v, exists := h[key]
+	if exists {
+		value = strings.Join([]string{v, value}, ", ")
+	}
 	h[key] = value
+}
+
+func (h Headers) Override(key, value string) {
+	key = strings.ToLower(key)
+	delete(h, key)
+	h[key] = value
+}
+
+func (h Headers) Delete(key string) {
+	key = strings.ToLower(key)
+	delete(h, key)
 }
 
 func (h Headers) Get(key string) (string, bool) {
